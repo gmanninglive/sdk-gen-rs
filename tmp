@@ -1,0 +1,8 @@
+pub async fn search_todos(params: Params) -> Result<Response, Error> {
+    reqwest::Client::new().get("/todo/search").query(params).send().await
+}
+
+pub async fn list_todos() -> Result<Response, Error> {
+    reqwest::get("/todo").await
+}
+

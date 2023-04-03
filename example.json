@@ -1,0 +1,217 @@
+{
+  "components": {
+    "schemas": {
+      "Todo": {
+        "description": "Item to do.",
+        "properties": {
+          "done": { "type": "boolean" },
+          "id": { "format": "int32", "type": "integer" },
+          "value": { "example": "Buy groceries", "type": "string" }
+        },
+        "required": ["id", "value", "done"],
+        "type": "object"
+      },
+      "TodoError": {
+        "description": "Todo operation errors",
+        "oneOf": [
+          {
+            "example": "Todo already exists",
+            "properties": {
+              "Conflict": {
+                "description": "Todo already exists conflict.",
+                "type": "string"
+              }
+            },
+            "required": ["Conflict"],
+            "type": "object"
+          },
+          {
+            "example": "id = 1",
+            "properties": {
+              "NotFound": {
+                "description": "Todo not found by id.",
+                "type": "string"
+              }
+            },
+            "required": ["NotFound"],
+            "type": "object"
+          },
+          {
+            "example": "missing api key",
+            "properties": {
+              "Unauthorized": {
+                "description": "Todo operation unauthorized",
+                "type": "string"
+              }
+            },
+            "required": ["Unauthorized"],
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "api_key": { "in": "header", "name": "todo_apikey", "type": "apiKey" }
+    }
+  },
+  "info": {
+    "contact": { "email": "example@example.com", "name": "Elli Example" },
+    "description": "Simple axum todo example api with utoipa and Swagger UI",
+    "license": { "name": "MIT" },
+    "title": "todo-axum",
+    "version": "0.1.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/todo": {
+      "get": {
+        "description": "List all Todo items\n\nList all Todo items from in-memory storage.",
+        "operationId": "list_todos",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/Todo" },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List all todos successfully"
+          }
+        },
+        "summary": "List all Todo items",
+        "tags": ["todo"]
+      },
+      "post": {
+        "description": "Create new Todo\n\nTries to create a new Todo item to in-memory storage or fails with 409 conflict if already exists.",
+        "operationId": "create_todo",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Todo" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Todo" }
+              }
+            },
+            "description": "Todo item created successfully"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TodoError" }
+              }
+            },
+            "description": "Todo already exists"
+          }
+        },
+        "summary": "Create new Todo",
+        "tags": ["todo"]
+      }
+    },
+    "/todo/search": {
+      "get": {
+        "description": "Search Todos by query params.\n\nSearch `Todo`s by query params and return matching `Todo`s.",
+        "operationId": "search_todos",
+        "parameters": [
+          {
+            "description": "Search by value. Search is incase sensitive.",
+            "in": "query",
+            "name": "value",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "description": "Search by `done` status.",
+            "in": "query",
+            "name": "done",
+            "required": true,
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": { "$ref": "#/components/schemas/Todo" },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "List matching todos by query"
+          }
+        },
+        "summary": "Search Todos by query params.",
+        "tags": ["todo"]
+      }
+    },
+    "/todo/{id}": {
+      "delete": {
+        "description": "Delete Todo item by id\n\nDelete Todo item from in-memory storage by id. Returns either 200 success of 404 with TodoError if Todo is not found.",
+        "operationId": "delete_todo",
+        "parameters": [
+          {
+            "description": "Todo database id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Todo marked done successfully" },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": { "Unauthorized": "missing api key" },
+                "schema": { "$ref": "#/components/schemas/TodoError" }
+              }
+            },
+            "description": "Unauthorized to delete Todo"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": { "NotFound": "id = 1" },
+                "schema": { "$ref": "#/components/schemas/TodoError" }
+              }
+            },
+            "description": "Todo not found"
+          }
+        },
+        "security": [{ "api_key": [] }],
+        "summary": "Delete Todo item by id",
+        "tags": ["todo"]
+      },
+      "put": {
+        "description": "Mark Todo item done by id\n\nMark Todo item done by given id. Return only status 200 on success or 404 if Todo is not found.",
+        "operationId": "mark_done",
+        "parameters": [
+          {
+            "description": "Todo database id",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "format": "int32", "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Todo marked done successfully" },
+          "404": { "description": "Todo not found" }
+        },
+        "security": [{}, { "api_key": [] }],
+        "summary": "Mark Todo item done by id",
+        "tags": ["todo"]
+      }
+    }
+  },
+  "tags": [{ "description": "Todo items management API", "name": "todo" }]
+}

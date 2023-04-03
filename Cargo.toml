@@ -1,0 +1,22 @@
+[package]
+name = "openapi-codegen"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+  "gen_core",
+  "gen_reqwest"
+]
+
+[workspace.dependencies]
+anyhow = "1.0.70"
+serde = { version = "1.0.159", features = ["derive"] }
+
+[dependencies]
+anyhow = { workspace = true }
+serde_json = "1.0.95"
+serde_with = "2.3.1"
+
+gen_core = { path = "./gen_core" }
+gen_reqwest = { path = "./gen_reqwest" }
