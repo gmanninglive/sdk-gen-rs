@@ -30,7 +30,8 @@ fn main() -> Result<(), anyhow::Error> {
         .get_one::<PathBuf>("out_dir")
         .expect("output directory path missing");
     let file = fs::read_to_string(spec_path).unwrap();
-    let spec = serde_json::from_str::<OpenApiSpec>(file.as_str()).expect("error deserializing json");
+    let spec =
+        serde_json::from_str::<OpenApiSpec>(file.as_str()).expect("error deserializing json");
 
     let builder = Builder::new(
         BuilderConfig {

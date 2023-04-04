@@ -1,37 +1,37 @@
 use std::{collections::HashMap, path::PathBuf};
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 struct Contact {
     email: String,
     name: String,
 }
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct License {
     name: String,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct InfoObject {
     contact: Contact,
     description: String,
     license: License,
-    title: String,
+    pub title: String,
     version: String,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct OpenApiSpec {
-    info: InfoObject,
+    pub info: InfoObject,
     pub paths: HashMap<String, HashMap<Method, Request>>,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 pub struct Paths {
     get: Option<Request>,
     post: Option<Request>,
 }
 
-#[derive(Debug, serde::Deserialize, Eq, PartialEq, Hash)]
+#[derive(Debug, serde::Deserialize, Clone, Eq, PartialEq, Hash)]
 pub enum Method {
     #[serde(rename(deserialize = "get"))]
     GET,
@@ -82,7 +82,7 @@ pub enum ParameterLocation {
     Cookie,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct BuilderConfig {
     pub out_dir: PathBuf,
 }

@@ -11,3 +11,4 @@ gen_core = { path = "../gen_core" }
 serde = { workspace = true }
 anyhow = { workspace = true }
 reqwest = "0.11.16"
+rust-embed = "6.6.1"
