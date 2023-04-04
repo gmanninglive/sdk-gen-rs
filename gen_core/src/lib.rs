@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 #[derive(Debug, serde::Deserialize)]
 struct Contact {
@@ -80,4 +80,14 @@ pub enum ParameterLocation {
     Query,
     Header,
     Cookie,
+}
+
+#[derive(Clone)]
+pub struct BuilderConfig {
+    pub out_dir: PathBuf,
+}
+
+pub trait BuilderTrait {
+    fn new(config: BuilderConfig, spec: OpenApiSpec) -> Self;
+    fn generate(self) -> Result<(), anyhow::Error>;
 }
